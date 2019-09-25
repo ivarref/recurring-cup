@@ -33,7 +33,9 @@
                          (.withSecond second)
                          (.withMinute minute)
                          (.withHour hour))
-                     #(.plusDays % 1)))
+                     #(-> %
+                          (.plusDays 1)
+                          (.withHour hour))))
 
 (defn hourly
   [{:keys [minute second timezone]
@@ -112,3 +114,44 @@
                           (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %))))
                      (fn [] (println (now-str) "Get first cup of ☕")))
       (tv/advance! (+ (tt/unix-time) (* 7 24 3600))))))
+
+; Sommertid starter: Søndag 29. mar 2020
+; Klokka 02.00 natt til søndag, 29. mars 2020, stiller vi klokka en time fram til kl. 03.00 når vi går fra normaltid til sommertid.
+
+(comment
+  (do
+    (set! *print-length* 5)
+    (tt/stop!)
+    (tv/reset-time!)
+    (tv/with-virtual-time!
+      (-> "2020-03-28"
+          (LocalDate/parse (DateTimeFormatter/ofPattern "yyyy-MM-dd"))
+          (.atStartOfDay (ZoneId/of "Europe/Oslo"))
+          (.toEpochSecond)
+          (tv/advance!))
+      (daily {:hour 2 :timezone "Europe/Oslo"}))))
+
+(comment
+  (do
+    (set! *print-length* 5)
+    (tt/stop!)
+    (tv/reset-time!)
+    (tv/with-virtual-time!
+      (-> "2019-10-26"
+          (LocalDate/parse (DateTimeFormatter/ofPattern "yyyy-MM-dd"))
+          (.atStartOfDay (ZoneId/of "Europe/Oslo"))
+          (.toEpochSecond)
+          (tv/advance!))
+      (daily {:hour 3 :timezone "Europe/Oslo"}))))
+
+; Sommertid slutter: Søndag, 27. oktober, 2019
+; Natt til søndag 27. okt 2019, kl 03.00 stiller vi klokka en time tilbake fra sommertid til normaltid.
+
+(comment
+  (ZonedDateTime/parse "2020-03-29 02:00:00 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
+
+(comment
+  (ZonedDateTime/parse "2019-10-27 03:00:00 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
+
+(comment
+  (ZonedDateTime/parse "2019-10-27 02:59:59 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
