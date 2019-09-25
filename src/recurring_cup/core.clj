@@ -151,6 +151,11 @@
   (ZonedDateTime/parse "2020-03-29 02:00:00 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
 
 (comment
+  (let [b (ZonedDateTime/parse "2020-03-28 02:00 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm z"))]
+    (= (-> b (.plusDays 1) (.plusDays 1))
+       (-> b (.plusDays 2)))))
+
+(comment
   (ZonedDateTime/parse "2019-10-27 03:00:00 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
 
 (comment
