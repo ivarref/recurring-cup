@@ -5,8 +5,7 @@
            (tea_time.core Task)
            (java.time.format DateTimeFormatter)))
 
-(comment
-  (set! *print-length* 5))                                  ; Only print first 5 items of collections
+#_(set! *print-length* 5)                                     ; Only print first 5 items of collections
 
 (defn ^ZonedDateTime now
   ([] (now "UTC"))
@@ -14,13 +13,13 @@
           (Instant/ofEpochSecond (tt/unix-time))
           (ZoneId/of tz))))
 
-(defn- zdt-seq [zdt increment-fn]
-  (lazy-seq (cons zdt (zdt-seq (increment-fn zdt) increment-fn))))
+(defn- numbers
+  ([] (numbers 0))
+  ([n] (lazy-seq (cons n (numbers (inc n))))))
 
-(defn- zdt-seq-skip-past [initial-value increment-fn]
+(defn skip-past [s]
   (let [start-from (now)]
-    (->> (zdt-seq initial-value increment-fn)
-         (drop-while #(.isBefore % start-from)))))
+    (drop-while #(.isBefore % start-from) s)))
 
 (defn daily
   [{:keys [hour minute second timezone]
@@ -28,25 +27,27 @@
            minute   0
            second   0
            timezone "UTC"}}]
-  (zdt-seq-skip-past (-> (now timezone)
-                         (.withNano 0)
-                         (.withSecond second)
-                         (.withMinute minute)
-                         (.withHour hour))
-                     #(-> %
-                          (.plusDays 1)
-                          (.withHour hour))))
+  (let [base (-> (now timezone)
+                 (.withNano 0)
+                 (.withSecond second)
+                 (.withMinute minute)
+                 (.withHour hour))]
+    (->> (numbers)
+         (map #(.plusDays base %))
+         (skip-past))))
 
 (defn hourly
   [{:keys [minute second timezone]
     :or   {minute   0
            second   0
            timezone "UTC"}}]
-  (zdt-seq-skip-past (-> (now timezone)
-                         (.withNano 0)
-                         (.withSecond second)
-                         (.withMinute minute))
-                     #(.plusHours % 1)))
+  (let [base (-> (now timezone)
+                 (.withNano 0)
+                 (.withSecond second)
+                 (.withMinute minute))]
+    (->> (numbers)
+         (map #(.plusHours base %))
+         (skip-past))))
 
 (defn every-n-minute
   [{:keys [n minute second timezone]
@@ -55,11 +56,13 @@
            second   0
            timezone "UTC"}}]
   (assert (pos-int? n) "n must be a positive integer")
-  (zdt-seq-skip-past (-> (now timezone)
-                         (.withNano 0)
-                         (.withSecond second)
-                         (.withMinute minute))
-                     #(.plusMinutes % n)))
+  (let [base (-> (now timezone)
+                 (.withNano 0)
+                 (.withSecond second)
+                 (.withMinute minute))]
+    (->> (numbers)
+         (map #(.plusMinutes base (* n %)))
+         (skip-past))))
 
 (defn- seq->fn! [s]
   (let [state (atom s)]
