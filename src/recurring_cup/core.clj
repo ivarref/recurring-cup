@@ -68,21 +68,15 @@
          (map #(.plusMinutes base (* n %)))
          (skip-past))))
 
-(defn- seq->fn! [s]
-  (let [state (atom s)]
-    (fn []
-      (let [[head & tail] @state]
-        (reset! state tail)
-        head))))
-
 (defn- zoned-date-time->linear-micros [^ZonedDateTime zdt]
   (tt/unix-micros->linear-micros (tt/seconds->micros (.toEpochSecond zdt))))
 
-(defrecord ZonedDateTimeFnTask [id f ^long t prev-time next-time-fn! cancelled]
+(defrecord ZonedDateTimeTask [id f ^long t sq cancelled]
   Task
   (succ [this] (when-not @cancelled
-                 (when-let [next-time (next-time-fn!)]
-                   (assoc this :t (zoned-date-time->linear-micros next-time)))))
+                 (when-let [next-time (first sq)]
+                   (assoc this :t (zoned-date-time->linear-micros next-time)
+                               :sq (rest sq)))))
   (run [this] (when-not @cancelled
                 (f)))
   (cancel! [this]
@@ -90,14 +84,12 @@
 
 (defn schedule-seq!
   [sq f]
-  (let [first-time (first sq)]
-    (tt/schedule! (ZonedDateTimeFnTask.
-                    (tt/task-id)
-                    f
-                    (zoned-date-time->linear-micros first-time)
-                    first-time
-                    (seq->fn! (rest sq))
-                    (atom false)))))
+  (tt/schedule! (ZonedDateTimeTask.
+                  (tt/task-id)
+                  f
+                  (zoned-date-time->linear-micros (first sq))
+                  (rest sq)
+                  (atom false))))
 
 (defn- now-str
   ([] (now-str "UTC" "E HH:mm"))
