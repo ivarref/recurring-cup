@@ -16,6 +16,14 @@
       (tv/advance!)))
 
 (deftest no-timezone-change-drift
+  (set! *print-length* nil)
+  (tt/stop!)
+  (tv/reset-time!)
+  (tv/with-virtual-time!
+    (advance! "2020-03-29 00:00:00 Europe/Oslo")
+    (let [[a b] (vec (take 2 (cup/daily {:hour 2 :timezone "Europe/Oslo"})))]
+      (is (= a (parse "2020-03-29 03:00:00 Europe/Oslo")))
+      (is (= b (parse "2020-03-30 02:00:00 Europe/Oslo")))))
   (tt/stop!)
   (tv/reset-time!)
   (tv/with-virtual-time!

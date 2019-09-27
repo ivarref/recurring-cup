@@ -27,13 +27,15 @@
            minute   0
            second   0
            timezone "UTC"}}]
-  (let [base (-> (now timezone)
-                 (.withNano 0)
-                 (.withSecond second)
-                 (.withMinute minute)
-                 (.withHour hour))]
+  (let [base (now timezone)
+        number->zdt #(-> base
+                         (.plusDays %)
+                         (.withNano 0)
+                         (.withSecond second)
+                         (.withMinute minute)
+                         (.withHour hour))]
     (->> (numbers)
-         (map #(.plusDays base %))
+         (map number->zdt)
          (skip-past))))
 
 (defn hourly
@@ -41,12 +43,14 @@
     :or   {minute   0
            second   0
            timezone "UTC"}}]
-  (let [base (-> (now timezone)
-                 (.withNano 0)
-                 (.withSecond second)
-                 (.withMinute minute))]
+  (let [base (now timezone)
+        number->zdt #(-> base
+                         (.plusHours %)
+                         (.withNano 0)
+                         (.withSecond second)
+                         (.withMinute minute))]
     (->> (numbers)
-         (map #(.plusHours base %))
+         (map number->zdt)
          (skip-past))))
 
 (defn every-n-minute
