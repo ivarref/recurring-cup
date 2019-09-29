@@ -66,6 +66,19 @@
          (map #(.plusMinutes base (* n %)))
          (skip-past))))
 
+(defn compose
+  ([a] a)
+  ([[^ZonedDateTime a & as :as aseq] [^ZonedDateTime b & bs :as bseq]]
+   (if aseq
+     (if bseq
+       (if (.isBefore a b)
+         (lazy-seq (cons a (compose as bseq)))
+         (lazy-seq (cons b (compose aseq bs))))
+       aseq)
+     bseq))
+  ([a b & xs]
+   (reduce compose (compose a b) xs)))
+
 (defn- zoned-date-time->linear-micros [^ZonedDateTime zdt]
   (tt/unix-micros->linear-micros (tt/seconds->micros (.toEpochSecond zdt))))
 
