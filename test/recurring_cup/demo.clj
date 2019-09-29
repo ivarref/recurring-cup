@@ -74,3 +74,9 @@
 
 (comment
   (ZonedDateTime/parse "2019-10-27 02:59:59 Europe/Oslo" (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss z")))
+
+(comment
+  (->> (daily {:hour 9 :minute 45 :timezone "Europe/Oslo"})
+       (compose (daily {:hour 11 :minute 0 :timezone "Europe/Oslo"}))
+       (compose (daily {:hour 13 :minute 30 :timezone "Europe/Oslo"}))
+       (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %)))))
