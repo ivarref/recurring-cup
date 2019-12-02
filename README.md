@@ -6,7 +6,7 @@ Schedule lazy sequences in Clojure.
 
 ## Usage
 
-### My coffee schedule
+### My work coffee schedule
 
 ```clojure
 (set! *print-length* 10)
@@ -14,8 +14,7 @@ Schedule lazy sequences in Clojure.
 (import (java.time DayOfWeek))
 
 (->> (daily {:hour 9 :minute 45 :timezone "Europe/Oslo"})
-     (compose (daily {:hour 11 :minute 0 :timezone "Europe/Oslo"}))
-     (compose (daily {:hour 13 :minute 30 :timezone "Europe/Oslo"}))
+     (compose (daily {:hour 12 :minute 45 :timezone "Europe/Oslo"}))
      (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %))))
 ```
 
