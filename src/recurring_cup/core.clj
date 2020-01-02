@@ -1,70 +1,59 @@
 (ns recurring-cup.core
-  (:require [tea-time.core :as tt])
-  (:import (java.time ZoneId Instant ZonedDateTime)
-           (tea_time.core Task)))
+  (:require [recurring-cup.impl :as impl]
+            [clojure.string :as str])
+  (:import (java.time ZonedDateTime DayOfWeek)))
 
-#_(set! *print-length* 5)                                     ; Only print first 5 items of collections
-
-(defn ^ZonedDateTime now
-  ([] (now "UTC"))
-  ([tz] (ZonedDateTime/ofInstant
-          (Instant/ofEpochSecond (tt/unix-time))
-          (ZoneId/of tz))))
-
-(defn- numbers
-  ([] (numbers 0))
-  ([n] (lazy-seq (cons n (numbers (inc n))))))
-
-(defn skip-past [s]
-  (let [start-from (now)]
-    (drop-while #(.isBefore % start-from) s)))
+(comment
+  (set! *print-length* 10))                                 ; only print first 10 items of collections
 
 (defn daily
+  "Returns a lazy sequence of daily ZonedDateTime starting from today.
+
+  hour, minute, second and timezone is controlled by the arguments."
   [{:keys [hour minute second timezone]
-    :or   {hour     0
-           minute   0
-           second   0
-           timezone "UTC"}}]
-  (let [base (now timezone)
+    :or   {hour       0
+           minute     0
+           second     0
+           timezone   "UTC"}}]
+  (let [base (impl/now timezone)
         number->zdt #(-> base
                          (.plusDays %)
                          (.withNano 0)
                          (.withSecond second)
                          (.withMinute minute)
                          (.withHour hour))]
-    (->> (numbers)
+    (->> (impl/numbers)
          (map number->zdt)
-         (skip-past))))
+         (impl/skip-past))))
 
-(defn hourly
-  [{:keys [minute second timezone]
-    :or   {minute   0
-           second   0
-           timezone "UTC"}}]
-  (let [base (now timezone)
-        number->zdt #(-> base
-                         (.plusHours %)
-                         (.withNano 0)
-                         (.withSecond second)
-                         (.withMinute minute))]
-    (->> (numbers)
-         (map number->zdt)
-         (skip-past))))
+(def day-kw->DayOfWeek
+  (array-map
+    :mon DayOfWeek/MONDAY
+    :tue DayOfWeek/TUESDAY
+    :wed DayOfWeek/WEDNESDAY
+    :thur DayOfWeek/THURSDAY
+    :fri DayOfWeek/FRIDAY
+    :sat DayOfWeek/SATURDAY
+    :sun DayOfWeek/SUNDAY))
 
-(defn every-n-minute
-  [{:keys [n minute second timezone]
-    :or   {n        1
+(defn weekly
+  "Returns a lazy sequence of weekly java.time.ZonedDateTime.
+
+  Day is controlled by :day, and may be :mon, :tue, :wed, :thur, :fri, :sat or :sun.
+  Hour, minute, second and timezone is also configurable."
+  [{:keys [day hour minute second timezone]
+    :or   {day      :mon
+           hour     0
            minute   0
            second   0
-           timezone "UTC"}}]
-  (assert (pos-int? n) "n must be a positive integer")
-  (let [base (-> (now timezone)
-                 (.withNano 0)
-                 (.withSecond second)
-                 (.withMinute minute))]
-    (->> (numbers)
-         (map #(.plusMinutes base (* n %)))
-         (skip-past))))
+           timezone "UTC"}
+    :as   opts}]
+  (if-let [java-day (get day-kw->DayOfWeek day)]
+    (->> (daily opts)
+         (filter #(= java-day (.getDayOfWeek %))))
+    (throw (ex-info (str "Unknown :day specified, must be one of "
+                         (str/join " " (keys day-kw->DayOfWeek)))
+                    {:day day}))))
 
 (defn compose
   ([a] a)
@@ -79,25 +68,19 @@
   ([a b & xs]
    (reduce compose (compose a b) xs)))
 
-(defn- zoned-date-time->linear-micros [^ZonedDateTime zdt]
-  (tt/unix-micros->linear-micros (tt/seconds->micros (.toEpochSecond zdt))))
-
-(defrecord ZonedDateTimeTask [id f ^long t sq cancelled]
-  Task
-  (succ [this] (when-not @cancelled
-                 (when-let [next-time (first sq)]
-                   (assoc this :t (zoned-date-time->linear-micros next-time)
-                               :sq (rest sq)))))
-  (run [this] (when-not @cancelled
-                (f)))
-  (cancel! [this]
-    (reset! cancelled true)))
-
 (defn schedule-seq!
+  "Schedule a sequence of java.time.ZonedDateTime"
   [sq f]
-  (tt/schedule! (ZonedDateTimeTask.
-                  (tt/task-id)
-                  f
-                  (zoned-date-time->linear-micros (first sq))
-                  (rest sq)
-                  (atom false))))
+  (impl/schedule-seq! sq f))
+
+(defn stop!
+  "Stops the task threadpool. Waits for threads to exit. Repeated calls to stop
+  are noops."
+  []
+  (impl/stop!))
+
+(defn start!
+  "Starts the threadpool to execute tasks on the queue automatically. Repeated
+  calls to start are noops."
+  []
+  (impl/start!))
