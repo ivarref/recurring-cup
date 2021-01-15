@@ -15,6 +15,8 @@ RAW_VERSION="$(grep "^  <version>" pom.xml | sed 's|^.*<version>\(.*\)</version>
 NEW_VERSION="v$RAW_VERSION"
 echo "Releasing >$NEW_VERSION< ..."
 
+sed -i 's|^    <tag>.*$|    <tag>'$NEW_VERSION'</tag>|' pom.xml
+
 git add pom.xml
 git commit -m "Release $NEW_VERSION"
 git tag -a $NEW_VERSION -m "Release $NEW_VERSION"
