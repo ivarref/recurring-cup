@@ -2,6 +2,14 @@
 
 Schedule lazy sequences in Clojure.
 
+## Requirements
+
+The JVM.
+
+## Installation
+
+[![Clojars Project](https://img.shields.io/clojars/v/ivarref/recurring-cup.svg)](https://clojars.org/ivarref/recurring-cup)
+
 ## 10-second example
 
 ```clojure
@@ -15,9 +23,20 @@ Schedule lazy sequences in Clojure.
                (bound-fn [] (println "time to eat lunch!")))
 ```
 
-## Usage
+## Weekly schedule
 
-### Work coffee schedule example
+```clojure
+(require '[ivarref.recurring-cup :as cup])
+
+; Start executor thread pool. Repeated calls are no-ops.
+(cup/start!) 
+
+(cup/schedule! (cup/weekly {:day :mon
+                            :hour 7 :minute 0 :timezone "Europe/Oslo"})
+               (bound-fn [] (println "Another week begins...")))
+```
+
+## Mixed schedule using cup/compose and clojure.core/remove
 
 ```clojure
 (require '[ivarref.recurring-cup :as cup])
