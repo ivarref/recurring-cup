@@ -2,7 +2,18 @@
 
 Schedule lazy sequences in Clojure.
 
+## 10-second example
 
+```clojure
+(require '[ivarref.recurring-cup :as cup])
+
+; Start executor thread pool. Repeated calls are no-ops.
+(cup/start!) 
+
+; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo
+(cup/schedule-seq! (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
+                   (bound-fn [] (println "time to eat lunch!")))
+```
 
 ## Usage
 
