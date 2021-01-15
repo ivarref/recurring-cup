@@ -18,6 +18,5 @@ do
   echo $entry
   clojure  \
   -M --report stderr \
-  -e "$(cat $entry)"
+  -e "$(cat $entry)\n(require '[ivarref.recurring-cup :as cup])\n(cup/stop!)\n(shutdown-agents)"
 done
-
