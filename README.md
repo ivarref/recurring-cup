@@ -69,7 +69,7 @@ coffee-schedule
                (bound-fn [] (println "time to get some coffee!")))
 ```
 
-### Available timezones
+### Available timezones (openjdk 11.0.9.1 2020-11-04)
 ```
 Africa/Abidjan
 Africa/Accra
