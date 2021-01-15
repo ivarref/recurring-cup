@@ -17,16 +17,40 @@ Schedule lazy sequences in Clojure.
 
 ## Usage
 
-### My work coffee schedule
+### Coffee work schedule example
 
 ```clojure
-;(set! *print-length* 10)
-;(use 'ivarref.recurring-cup)
-;(import (java.time DayOfWeek))
+(require '[ivarref.recurring-cup :as cup])
+(import (java.time DayOfWeek))
 
-;(->> (daily {:hour 9 :minute 45 :timezone "Europe/Oslo"})
-;     (compose (daily {:hour 12 :minute 45 :timezone "Europe/Oslo"}))
-;     (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %))))
+; Don't blow up the stack if you want to inspect the lazy seq manually:
+(set! *print-length* 5)
+(cup/start!)
+
+(def coffee-schedule
+  (->> (cup/compose 
+         (cup/daily {:hour 9 :minute 0 :timezone "Europe/Oslo"})
+         (cup/daily {:hour 12 :minute 0 :timezone "Europe/Oslo"})
+         (cup/daily {:hour 13 :minute 0 :timezone "Europe/Oslo"}))
+       ; cup/daily, cup/compose, etc. returns a lazy seq, so you may tweak
+       ; the sequence using standard remove, filter, etc: 
+       (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %)))))
+
+; inspect...
+coffee-schedule
+; Example output:
+; This was executing on a Friday at 11.40, so the 09 hour is not here
+; (#object[java.time.ZonedDateTime 0x4cfa8227 "2021-01-15T12:00+01:00[Europe/Oslo]"] 
+;  #object[java.time.ZonedDateTime 0x3f685162 "2021-01-15T13:00+01:00[Europe/Oslo]"] 
+
+; And we skip SATURDAY and SUNDAY, so we go right to Monday 09 after Friday:
+;  #object[java.time.ZonedDateTime 0x11f406f8 "2021-01-18T09:00+01:00[Europe/Oslo]"]
+;  #object[java.time.ZonedDateTime 0x987455b "2021-01-18T12:00+01:00[Europe/Oslo]"] 
+;  #object[java.time.ZonedDateTime 0x1f3165e7 "2021-01-18T13:00+01:00[Europe/Oslo]"]
+; ...)
+
+(cup/schedule-seq! coffee-schedule 
+                   (bound-fn [] (println "time to get some coffee!")))
 ```
 
 ## License
