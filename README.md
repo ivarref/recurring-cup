@@ -20,13 +20,13 @@ Schedule lazy sequences in Clojure.
 ### My work coffee schedule
 
 ```clojure
-(set! *print-length* 10)
-(use 'recurring-cup.core)
-(import (java.time DayOfWeek))
+;(set! *print-length* 10)
+;(use 'ivarref.recurring-cup)
+;(import (java.time DayOfWeek))
 
-(->> (daily {:hour 9 :minute 45 :timezone "Europe/Oslo"})
-     (compose (daily {:hour 12 :minute 45 :timezone "Europe/Oslo"}))
-     (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %))))
+;(->> (daily {:hour 9 :minute 45 :timezone "Europe/Oslo"})
+;     (compose (daily {:hour 12 :minute 45 :timezone "Europe/Oslo"}))
+;     (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %))))
 ```
 
 ## License

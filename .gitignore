@@ -14,3 +14,4 @@ pom.xml.asc
 .cpcache/
 *.asc
 README-test/temp*
+temp/
