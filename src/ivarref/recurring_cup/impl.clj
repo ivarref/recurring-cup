@@ -1,7 +1,9 @@
 (ns ivarref.recurring-cup.impl
-  (:require [tea-time.core :as tt])
+  (:require [tea-time.core :as tt]
+            [clojure.string :as str])
   (:import (java.time ZoneId Instant ZonedDateTime)
-           (tea_time.core Task)))
+           (tea_time.core Task)
+           (java.io Writer)))
 
 (defn ^ZonedDateTime now
   ([] (now "UTC"))
@@ -30,6 +32,13 @@
                 (f)))
   (cancel! [this]
     (reset! cancelled true)))
+
+(defmethod clojure.core/print-method ZonedDateTimeTask
+  [task ^Writer writer]
+  (.write writer "#<ZonedDateTimeTask>")
+  (.write writer "[")
+  (.write writer (str/join ", " (mapv str (take 10 (:sq task)))))
+  (.write writer ", ...]"))
 
 (defn schedule-seq!
   [sq f]
