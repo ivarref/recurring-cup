@@ -69,7 +69,7 @@ coffee-schedule
                (bound-fn [] (println "time to get some coffee!")))
 ```
 
-[List of available timezones](timezones.md)
+[List of available timezones](timezones.md).
 
 ## License
 
