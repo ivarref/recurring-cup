@@ -1,15 +1,25 @@
 (ns ivarref.recurring-cup.impl
   (:require [tea-time.core :as tt]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.tools.logging :as log])
   (:import (java.time ZoneId Instant ZonedDateTime)
            (tea_time.core Task)
            (java.io Writer)))
 
+(def available-zones
+  (into (sorted-set) (ZoneId/getAvailableZoneIds)))
+
 (defn ^ZonedDateTime now
   ([] (now "UTC"))
-  ([tz] (ZonedDateTime/ofInstant
-          (Instant/ofEpochSecond (tt/unix-time))
-          (ZoneId/of tz))))
+  ([tz]
+   (if (contains? available-zones tz)
+       (ZonedDateTime/ofInstant
+         (Instant/ofEpochSecond (tt/unix-time))
+         (ZoneId/of tz))
+       (do
+         (log/error "invalid timezone specified:" tz)
+         (log/error "must use one of:" (str/join ", " available-zones))
+         (throw (ex-info "invalid timezone specified" {:timezone tz}))))))
 
 (defn numbers
   ([] (numbers 0))
