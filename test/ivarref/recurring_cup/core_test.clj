@@ -1,4 +1,4 @@
-(ns recurring-cup.core-test
+(ns ivarref.recurring-cup.core-test
   (:require [clojure.test :refer :all]
             [ivarref.recurring-cup :as cup]
             [tea-time.virtual :as tv]
