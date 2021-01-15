@@ -17,7 +17,7 @@ Schedule lazy sequences in Clojure.
 
 ## Usage
 
-### Coffee work schedule example
+### Work coffee schedule example
 
 ```clojure
 (require '[ivarref.recurring-cup :as cup])
