@@ -1,10 +1,6 @@
 # recurring-cup
 
-Schedule lazy sequences in Clojure.
-
-## Requirements
-
-The JVM.
+Schedule daily or weekly occurences in a given timezone in Clojure (JVM only).
 
 ## Installation
 
