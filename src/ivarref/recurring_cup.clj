@@ -1,7 +1,7 @@
-(ns recurring-cup.core
-  (:require [recurring-cup.impl :as impl]
-            [clojure.string :as str])
-  (:import (java.time ZonedDateTime DayOfWeek)))
+((ns ivarref.recurring-cup
+   (:require [ivarref.recurring-cup.impl :as impl]
+             [clojure.string :as str])
+   (:import (java.time ZonedDateTime DayOfWeek))))
 
 (comment
   (set! *print-length* 10))                                 ; only print first 10 items of collections

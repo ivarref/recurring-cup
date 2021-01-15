@@ -1,4 +1,4 @@
-(ns recurring-cup.impl
+(ns ivarref.recurring-cup.impl
   (:require [tea-time.core :as tt])
   (:import (java.time ZoneId Instant ZonedDateTime)
            (tea_time.core Task)))

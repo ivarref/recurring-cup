@@ -1,6 +1,6 @@
 (ns recurring-cup.core-test
   (:require [clojure.test :refer :all]
-            [recurring-cup.core :as cup]
+            [ivarref.recurring-cup :as cup]
             [tea-time.virtual :as tv]
             [tea-time.core :as tt])
   (:import (java.time ZonedDateTime)

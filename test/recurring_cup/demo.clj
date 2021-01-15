@@ -4,7 +4,7 @@
             [tea-time.core :as tt]
             [tea-time.virtual :as tv])
   (:import (java.time.format DateTimeFormatter)
-           (java.time LocalDate ZoneOffset DayOfWeek ZoneId)))
+           (java.time LocalDate ZoneOffset DayOfWeek ZoneId LocalDateTime ZonedDateTime Instant Duration)))
 
 (defn- now-str
   ([] (now-str "UTC" "E HH:mm"))
@@ -33,17 +33,30 @@
 ; Klokka 02.00 natt til søndag, 29. mars 2020, stiller vi klokka en time fram til kl. 03.00 når vi går fra normaltid til sommertid.
 
 (comment
+  (let [start (ZonedDateTime/parse "2020-03-29T01:59:59+01:00[Europe/Oslo]")]
+    (->>
+      (iterate inc 0)
+      (map #(.plusSeconds start %))
+      (take 3))))
+
+(comment
+  (let [start (ZonedDateTime/parse "2019-10-27T02:59:59+02:00[Europe/Oslo]")]
+    (->>
+      (iterate inc 0)
+      (map #(.plusSeconds start %))
+      (take 3))))
+
+(comment
   (do
-    (set! *print-length* 5)
     (tt/stop!)
     (tv/reset-time!)
     (tv/with-virtual-time!
-      (-> "2020-03-28"
-          (LocalDate/parse (DateTimeFormatter/ofPattern "yyyy-MM-dd"))
-          (.atStartOfDay (ZoneId/of "Europe/Oslo"))
+      (-> "2020-03-28T00:00+01:00[Europe/Oslo]"
+          (ZonedDateTime/parse)
           (.toEpochSecond)
           (tv/advance!))
-      (cup/daily {:hour 2 :timezone "Europe/Oslo"}))))
+      (->> (cup/daily {:hour 2 :timezone "Europe/Oslo"})
+           (take 3)))))
 
 (comment
   (do
