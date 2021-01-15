@@ -27,4 +27,10 @@
       <url>https://repo.clojars.org/</url>
     </repository>
   </repositories>
+  <scm>
+    <connection>scm:git:git://github.com/ivarref/recurring-cup.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/ivarref/recurring-cup.git</developerConnection>
+    <tag>v0.3.37</tag>
+    <url>https://github.com/ivarref/recurring-cup</url>
+  </scm>
 </project>
