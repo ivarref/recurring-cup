@@ -31,7 +31,7 @@ The JVM.
 ; Start executor thread pool. Repeated calls are no-ops.
 (cup/start!) 
 
-(cup/schedule! (cup/weekly {:day :mon
+(cup/schedule! (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
                             :hour 7 :minute 0 :timezone "Europe/Oslo"})
                (bound-fn [] (println "Another week begins...")))
 ```
