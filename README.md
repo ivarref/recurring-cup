@@ -1,6 +1,7 @@
 # recurring-cup
 
 Schedule daily or weekly occurences in a given timezone in Clojure (JVM only).
+Built on top of [tea-time](https://github.com/aphyr/tea-time).
 
 ## Installation
 
