@@ -40,7 +40,7 @@
   (.write writer (str/join ", " (mapv str (take 10 (:sq task)))))
   (.write writer ", ...]"))
 
-(defn schedule-seq!
+(defn schedule!
   [sq f]
   (tt/schedule! (ZonedDateTimeTask.
                   (tt/task-id)

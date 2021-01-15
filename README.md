@@ -11,8 +11,8 @@ Schedule lazy sequences in Clojure.
 (cup/start!) 
 
 ; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo
-(cup/schedule-seq! (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
-                   (bound-fn [] (println "time to eat lunch!")))
+(cup/schedule! (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
+               (bound-fn [] (println "time to eat lunch!")))
 ```
 
 ## Usage
@@ -49,8 +49,8 @@ coffee-schedule
 ;  #object[java.time.ZonedDateTime 0x1f3165e7 "2021-01-18T13:00+01:00[Europe/Oslo]"]
 ; ...)
 
-(cup/schedule-seq! coffee-schedule 
-                   (bound-fn [] (println "time to get some coffee!")))
+(cup/schedule! coffee-schedule 
+               (bound-fn [] (println "time to get some coffee!")))
 ```
 
 ## License

@@ -68,10 +68,10 @@
   ([a b & xs]
    (reduce compose (compose a b) xs)))
 
-(defn schedule-seq!
+(defn schedule!
   "Schedule a sequence of java.time.ZonedDateTime"
   [sq f]
-  (impl/schedule-seq! sq f))
+  (impl/schedule! sq f))
 
 (defn stop!
   "Stops the task threadpool. Waits for threads to exit. Repeated calls to stop
