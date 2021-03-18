@@ -16,7 +16,8 @@ Built on top of [tea-time](https://github.com/aphyr/tea-time).
 (cup/start!) 
 
 ; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo
-(cup/schedule! (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
+(cup/schedule! ::lunch-reminder
+               (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
                (bound-fn [] (println "time to eat lunch!")))
 ```
 
@@ -28,7 +29,8 @@ Built on top of [tea-time](https://github.com/aphyr/tea-time).
 ; Start executor thread pool. Repeated calls are no-ops.
 (cup/start!) 
 
-(cup/schedule! (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
+(cup/schedule! ::another-week
+               (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
                             :hour 7 :minute 0 :timezone "Europe/Oslo"})
                (bound-fn [] (println "Another week begins...")))
 ```
@@ -65,7 +67,8 @@ coffee-schedule
 ;  #object[java.time.ZonedDateTime 0x1f3165e7 "2021-01-18T13:00+01:00[Europe/Oslo]"]
 ; ...)
 
-(cup/schedule! coffee-schedule 
+(cup/schedule! ::coffee-reminder
+               coffee-schedule 
                (bound-fn [] (println "time to get some coffee!")))
 ```
 

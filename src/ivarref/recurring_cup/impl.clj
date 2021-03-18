@@ -13,13 +13,13 @@
   ([] (now "UTC"))
   ([tz]
    (if (contains? available-zones tz)
-       (ZonedDateTime/ofInstant
-         (Instant/ofEpochSecond (tt/unix-time))
-         (ZoneId/of tz))
-       (do
-         (log/error "invalid timezone specified:" tz)
-         (log/error "must use one of:" (str/join ", " available-zones))
-         (throw (ex-info "invalid timezone specified" {:timezone tz}))))))
+     (ZonedDateTime/ofInstant
+       (Instant/ofEpochSecond (tt/unix-time))
+       (ZoneId/of tz))
+     (do
+       (log/error "invalid timezone specified:" tz)
+       (log/error "must use one of:" (str/join ", " available-zones))
+       (throw (ex-info "invalid timezone specified" {:timezone tz}))))))
 
 (defn numbers
   ([] (numbers 0))
@@ -50,17 +50,44 @@
   (.write writer (str/join ", " (mapv str (take 10 (:sq task)))))
   (.write writer ", ...]"))
 
+(defonce tasks (atom {}))
+
 (defn schedule!
-  [sq f]
-  (tt/schedule! (ZonedDateTimeTask.
-                  (tt/task-id)
-                  f
-                  (zoned-date-time->linear-micros (first sq))
-                  (rest sq)
-                  (atom false))))
+  [id sq f]
+  (let [cancelled (atom false)
+        new-task (ZonedDateTimeTask.
+                   (tt/task-id)
+                   f
+                   (zoned-date-time->linear-micros (first sq))
+                   (rest sq)
+                   cancelled)]
+    (tt/schedule! new-task)
+    (swap! tasks update id (fn [old-cancelled]
+                             (when old-cancelled
+                               (reset! old-cancelled true))
+                             cancelled))
+    new-task))
 
 (defn start! []
   (tt/start!))
 
 (defn stop! []
   (tt/stop!))
+
+(comment
+  (do
+    (println "starting...")
+    (start!)
+    (let [begin (-> (now "UTC"))
+          number->zdt #(-> begin
+                           (.plusSeconds %))
+          schedule (map number->zdt (numbers))]
+      (schedule! ::say-hi (skip-past schedule)
+                 (let [cnt (atom 0)]
+                   (bound-fn []
+                     (println "hello" (swap! cnt inc)))))
+      (Thread/sleep 3000)
+      (schedule! ::say-hi (skip-past schedule)
+                 (let [cnt (atom 0)]
+                   (bound-fn []
+                     (println "hi" (swap! cnt inc))))))))
