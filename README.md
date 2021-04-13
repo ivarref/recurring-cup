@@ -25,7 +25,8 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
 
 ; Make a weekly reminder on Mondays:
 (cup/schedule! ::another-week
-               (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
+               (cup/weekly {; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun:
+                            :day :mon
                             :hour 7 :minute 0 :timezone "Europe/Oslo"})
                (bound-fn [] (println "Another week begins... 😱")))
 
