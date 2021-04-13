@@ -40,7 +40,7 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
 
 # Advanced usage
 
-`cup/daily` and `cup/weekly` returns lazy sequences.
+`cup/daily` and `cup/weekly` returns lazy sequences of [java.time.ZonedDateTime](https://docs.oracle.com/javase/8/docs/api/java/time/ZonedDateTime.html).
 Thus you can use standard `clojure.core/filter`, `clojure.core/remove`, etc.
 to build up your preferred schedule.
 
