@@ -38,7 +38,7 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
                (bound-fn [] (println "Another week begins! 😻")))
 ```
 
-# Advanced usage
+## Advanced usage
 
 `cup/daily` and `cup/weekly` returns lazy sequences of [java.time.ZonedDateTime](https://docs.oracle.com/javase/8/docs/api/java/time/ZonedDateTime.html).
 Thus you can use standard `clojure.core/filter`, `clojure.core/remove`, etc.
@@ -84,11 +84,11 @@ coffee-schedule
                (bound-fn [] (println "Time to get some coffee ☕")))
 ```
 
-# Error handling
+## Error handling
 
 If the scheduled function throws an exception, it will be logged using `ERROR` level.
 
-# Other
+## Other
 
 [List of available timezones](timezones.md).
 
