@@ -27,7 +27,7 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
 (cup/schedule! ::another-week
                (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
                             :hour 7 :minute 0 :timezone "Europe/Oslo"})
-               (bound-fn [] (println "Another week begins...")))
+               (bound-fn [] (println "Another week begins... 😱")))
 
 ; Replace an existing schedule by using the same identifier:
 (cup/schedule! ::another-week
