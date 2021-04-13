@@ -57,7 +57,11 @@
   (let [cancelled (atom false)
         new-task (ZonedDateTimeTask.
                    (tt/task-id)
-                   f
+                   (fn []
+                     (try
+                       (f)
+                       (catch Throwable t
+                         (log/error t "Recurring-cup task" id "threw uncaught exception"))))
                    (zoned-date-time->linear-micros (first sq))
                    (rest sq)
                    cancelled)]
