@@ -47,7 +47,7 @@ to build up your preferred schedule.
 `cup/compose` joins two or more sequences together and 
 returns a single sorted lazy sequence.
 
-## Example coffee schedule using cup/compose and clojure.core/remove 
+### Example coffee schedule using cup/compose and clojure.core/remove 
 
 ```clojure
 (require '[ivarref.recurring-cup :as cup])
