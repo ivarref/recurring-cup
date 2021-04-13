@@ -1,7 +1,7 @@
 # recurring-cup
 
 Schedule daily or weekly occurences in a given timezone in Clojure (JVM only).
-Built on top of [tea-time](https://github.com/aphyr/tea-time).
+Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on.
 
 ## Installation
 
@@ -15,34 +15,44 @@ Built on top of [tea-time](https://github.com/aphyr/tea-time).
 ; Start executor thread pool. Repeated calls are no-ops.
 (cup/start!) 
 
-; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo
-(cup/schedule! ::lunch-reminder
+; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo:
+(cup/schedule! ; Identifier of schedule:
+               ::lunch-reminder
+               ; The schedule, i.e. daily at 12:30 in timezone Europe/Oslo:
                (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
-               (bound-fn [] (println "time to eat lunch!")))
-```
+               ; The function to execute:
+               (bound-fn [] (println "Time to eat lunch!")))
 
-## Weekly schedule
-
-```clojure
-(require '[ivarref.recurring-cup :as cup])
-
-; Start executor thread pool. Repeated calls are no-ops.
-(cup/start!) 
-
+; Make a weekly reminder on Mondays:
 (cup/schedule! ::another-week
                (cup/weekly {:day :mon ; :day should be one of :mon, :tue, :wed, :thur, :fri, :sat or :sun
                             :hour 7 :minute 0 :timezone "Europe/Oslo"})
                (bound-fn [] (println "Another week begins...")))
+
+; Replace an existing schedule by using the same identifier:
+(cup/schedule! ::another-week
+               (cup/weekly {:day :mon
+                            :hour 8 :minute 0 :timezone "Europe/Oslo"})
+               (bound-fn [] (println "Another week begins! 😻")))
 ```
 
-## Mixed schedule using cup/compose and clojure.core/remove
+# Advanced usage
+
+`cup/daily` and `cup/weekly` returns lazy sequences.
+Thus you can use standard `clojure.core/filter`, `clojure.core/remove`, etc.
+to build up your preferred schedule.
+
+`cup/compose` joins two or more sequences together and 
+returns a single sorted lazy sequence.
+
+## Example coffee schedule using cup/compose and clojure.core/remove 
 
 ```clojure
 (require '[ivarref.recurring-cup :as cup])
 (import (java.time DayOfWeek))
 
-; Don't blow up the stack if you want to inspect the lazy seq manually:
-(set! *print-length* 5)
+; Don't blow up the stack if you want to inspect the seq manually:
+(set! *print-length* 10)
 (cup/start!)
 
 (def coffee-schedule
@@ -54,25 +64,35 @@ Built on top of [tea-time](https://github.com/aphyr/tea-time).
        ; the sequence using standard remove, filter, etc: 
        (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %)))))
 
-; inspect...
-coffee-schedule
 ; Example output:
+coffee-schedule
 ; This was executing on a Friday at 11.40, so the 09 hour is not here
-; (#object[java.time.ZonedDateTime 0x4cfa8227 "2021-01-15T12:00+01:00[Europe/Oslo]"] 
-;  #object[java.time.ZonedDateTime 0x3f685162 "2021-01-15T13:00+01:00[Europe/Oslo]"] 
+; (#object[ZonedDateTime "2021-01-15T12:00+01:00[Europe/Oslo]"] 
+;  #object[ZonedDateTime "2021-01-15T13:00+01:00[Europe/Oslo]"] 
 
-; And we skip SATURDAY and SUNDAY, so we go right to Monday 09 after Friday:
-;  #object[java.time.ZonedDateTime 0x11f406f8 "2021-01-18T09:00+01:00[Europe/Oslo]"]
-;  #object[java.time.ZonedDateTime 0x987455b "2021-01-18T12:00+01:00[Europe/Oslo]"] 
-;  #object[java.time.ZonedDateTime 0x1f3165e7 "2021-01-18T13:00+01:00[Europe/Oslo]"]
+; We skip SATURDAY and SUNDAY, so we go right to Monday 09 after Friday.
+; Notice thus that we go from 2021-01-15 to 2021-01-18:
+;  #object[ZonedDateTime "2021-01-18T09:00+01:00[Europe/Oslo]"]
+;  #object[ZonedDateTime "2021-01-18T12:00+01:00[Europe/Oslo]"] 
+;  #object[ZonedDateTime "2021-01-18T13:00+01:00[Europe/Oslo]"]
 ; ...)
 
 (cup/schedule! ::coffee-reminder
                coffee-schedule 
-               (bound-fn [] (println "time to get some coffee!")))
+               (bound-fn [] (println "Time to get some coffee ☕")))
 ```
 
+# Error handling
+
+If the scheduled function throws an exception, it will be logged using `ERROR` level.
+
+# Other
+
 [List of available timezones](timezones.md).
+
+## Credits
+
+Built on top of the excellent [Tea-Time](https://github.com/aphyr/tea-time).
 
 ## License
 
