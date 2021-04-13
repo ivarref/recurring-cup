@@ -86,7 +86,7 @@ coffee-schedule
 
 ## Error handling
 
-If the scheduled function throws an exception, it will be logged using `ERROR` level.
+If a scheduled function throws an exception, it will be logged using `ERROR` level.
 
 ## Other
 
