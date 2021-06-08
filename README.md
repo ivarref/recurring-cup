@@ -18,24 +18,24 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
 ; Make a daily reminder to yourself to eat lunch at 12:30 in timezone Europe/Oslo:
 (cup/schedule! ; Identifier of schedule:
                ::lunch-reminder
-               ; The schedule, i.e. daily at 12:30 in timezone Europe/Oslo:
-               (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"})
                ; The function to execute:
-               (bound-fn [] (println "Time to eat lunch!")))
+               (bound-fn [] (println "Time to eat lunch!"))
+               ; The schedule, i.e. daily at 12:30 in timezone Europe/Oslo:
+               (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"}))
 
 ; Make a weekly reminder on Mondays:
 (cup/schedule! ::another-week
+               (bound-fn [] (println "Another week begins... 😱"))
                (cup/weekly {; :day should be one of
                             ; :mon, :tue, :wed, :thur, :fri, :sat or :sun
                             :day :mon
-                            :hour 7 :minute 0 :timezone "Europe/Oslo"})
-               (bound-fn [] (println "Another week begins... 😱")))
+                            :hour 7 :minute 0 :timezone "Europe/Oslo"}))
 
 ; Replace an existing schedule by using the same identifier:
 (cup/schedule! ::another-week
+               (bound-fn [] (println "Another week begins! 😻"))
                (cup/weekly {:day :mon
-                            :hour 8 :minute 0 :timezone "Europe/Oslo"})
-               (bound-fn [] (println "Another week begins! 😻")))
+                            :hour 8 :minute 0 :timezone "Europe/Oslo"}))
 ```
 
 ## Advanced usage
@@ -80,13 +80,14 @@ coffee-schedule
 ; ...)
 
 (cup/schedule! ::coffee-reminder
-               coffee-schedule 
-               (bound-fn [] (println "Time to get some coffee ☕")))
+               (bound-fn [] (println "Time to get some coffee ☕"))
+               coffee-schedule)
 ```
 
 ## Error handling
 
 If a scheduled function throws an exception, it will be logged using `ERROR` level.
+Note: the default log level for errors in tea-time is `WARN`.
 
 ## Other
 

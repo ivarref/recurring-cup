@@ -53,7 +53,7 @@
 (defonce tasks (atom {}))
 
 (defn schedule!
-  [id sq f]
+  [id f sq]
   (let [cancelled (atom false)
         new-task (ZonedDateTimeTask.
                    (tt/task-id)

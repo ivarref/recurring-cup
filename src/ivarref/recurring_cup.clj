@@ -70,8 +70,8 @@
 
 (defn schedule!
   "Schedule a sequence of java.time.ZonedDateTime"
-  [id sq f]
-  (impl/schedule! id sq f))
+  [id f sq]
+  (impl/schedule! id f sq))
 
 (defn stop!
   "Stops the task threadpool. Waits for threads to exit. Repeated calls to stop
