@@ -21,6 +21,7 @@ Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on
                ; The function to execute:
                (bound-fn [] (println "Time to eat lunch!"))
                ; The schedule, i.e. daily at 12:30 in timezone Europe/Oslo:
+               ; If :timezone is left out, UTC is used.
                (cup/daily {:hour 12 :minute 30 :timezone "Europe/Oslo"}))
 
 ; Make a weekly reminder on Mondays:
