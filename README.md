@@ -1,6 +1,6 @@
 # recurring-cup
 
-Schedule daily or weekly occurences in a given timezone in Clojure (JVM only).
+Schedule daily or weekly occurrences in a given timezone in Clojure (JVM only).
 Tweak them using standard `clojure.core/filter`, `clojure.core/remove` and so on.
 
 ## Installation
