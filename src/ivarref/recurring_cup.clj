@@ -26,6 +26,19 @@
          (map number->zdt)
          (impl/skip-past))))
 
+(defn every-n-minutes
+  [n]
+  (let [base (impl/now "UTC")
+        number->zdt #(-> base
+                         (.withNano 0)
+                         (.withSecond 0)
+                         (.withMinute 0)
+                         (.withHour 0)
+                         (.plusMinutes (* n %)))]
+    (->> (impl/numbers)
+         (map number->zdt)
+         (impl/skip-past))))
+
 (def day-kw->DayOfWeek
   (array-map
     :mon DayOfWeek/MONDAY
