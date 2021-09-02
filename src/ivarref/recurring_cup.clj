@@ -39,6 +39,11 @@
          (map number->zdt)
          (impl/skip-past))))
 
+
+(defn immediately [sq]
+  (cons (impl/now "UTC") sq))
+
+
 (def day-kw->DayOfWeek
   (array-map
     :mon DayOfWeek/MONDAY
