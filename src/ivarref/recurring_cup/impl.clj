@@ -58,10 +58,14 @@
         new-task (ZonedDateTimeTask.
                    (tt/task-id)
                    (fn []
-                     (try
-                       (f)
-                       (catch Throwable t
-                         (log/error t "Recurring-cup task" id "threw uncaught exception"))))
+                     (let [old-name (.getName (Thread/currentThread))]
+                       (try
+                         (.setName (Thread/currentThread) (str "cup-" (name id)))
+                         (f)
+                         (catch Throwable t
+                           (log/error t "Recurring-cup task" id "threw uncaught exception"))
+                         (finally
+                           (.setName (Thread/currentThread) old-name)))))
                    (zoned-date-time->linear-micros (first sq))
                    (rest sq)
                    cancelled)]
@@ -86,12 +90,14 @@
           number->zdt #(-> begin
                            (.plusSeconds %))
           schedule (map number->zdt (numbers))]
-      (schedule! ::say-hi (skip-past schedule)
+      (schedule! ::say-hi
                  (let [cnt (atom 0)]
                    (bound-fn []
-                     (println "hello" (swap! cnt inc)))))
+                     (println "hello" (swap! cnt inc))))
+                 (skip-past schedule))
       (Thread/sleep 3000)
-      (schedule! ::say-hi (skip-past schedule)
+      (schedule! ::say-hi
                  (let [cnt (atom 0)]
                    (bound-fn []
-                     (println "hi" (swap! cnt inc))))))))
+                     (println "hi" (.getName (Thread/currentThread)) (swap! cnt inc))))
+                 (skip-past schedule)))))
