@@ -40,6 +40,20 @@
          (impl/skip-past))))
 
 
+(defn every-n-seconds
+  [n]
+  (let [base (impl/now "UTC")
+        number->zdt #(-> base
+                         (.withNano 0)
+                         (.withSecond 0)
+                         (.withMinute 0)
+                         (.withHour 0)
+                         (.plusSeconds (* n %)))]
+    (->> (impl/numbers)
+         (map number->zdt)
+         (impl/skip-past))))
+
+
 (defn immediately [sq]
   (cons (impl/now "UTC") sq))
 
