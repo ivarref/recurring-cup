@@ -5,7 +5,7 @@
   (:import (java.time ZoneId Instant ZonedDateTime)
            (tea_time.core Task)
            (java.io Writer)
-           (clojure.lang IDeref IPending)))
+           (clojure.lang IDeref IPending IBlockingDeref)))
 
 (def available-zones
   (into (sorted-set) (ZoneId/getAvailableZoneIds)))
@@ -98,12 +98,21 @@
         IDeref
         (deref [_]
           @@p)
+        IBlockingDeref
+        (deref [_ timeout-ms timeout-val]
+          (let [v (deref p timeout-ms timeout-val)]
+            (if (= v a)
+              @a
+              v)))
         IPending
         (isRealized [_]
           (realized? p))))
     (reify
       IDeref
       (deref [_]
+        (f))
+      IBlockingDeref
+      (deref [_ _ _]
         (f))
       IPending
       (isRealized [_]
@@ -115,6 +124,24 @@
 
 (defn stop! []
   (tt/stop!))
+
+(comment
+  (do
+    (println "starting...")
+    (start!)
+    (let [begin (-> (now "UTC"))
+          number->zdt #(-> begin
+                           (.plusSeconds %))
+          schedule (map number->zdt (numbers))]
+      (let [job (dereffable-job! ::say-hi
+                                 (let [cnt (atom 0)]
+                                   (bound-fn []
+                                     #_(when (> (Math/random) 0.5))
+                                     (throw (ex-info "janei..." {}))
+                                     (swap! cnt inc)))
+                                 (skip-past schedule))]
+        (def j job)))))
+
 
 (comment
   (do
