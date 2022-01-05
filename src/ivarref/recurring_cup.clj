@@ -105,6 +105,12 @@
   [id f sq]
   (impl/schedule! id f sq))
 
+
+(defn dereffable-job!
+  [id f sq]
+  (impl/dereffable-job! id f sq))
+
+
 (defn stop!
   "Stops the task threadpool. Waits for threads to exit. Repeated calls to stop
   are noops."

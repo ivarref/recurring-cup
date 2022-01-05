@@ -4,7 +4,8 @@
             [clojure.tools.logging :as log])
   (:import (java.time ZoneId Instant ZonedDateTime)
            (tea_time.core Task)
-           (java.io Writer)))
+           (java.io Writer)
+           (clojure.lang IDeref IPending)))
 
 (def available-zones
   (into (sorted-set) (ZoneId/getAvailableZoneIds)))
@@ -75,6 +76,39 @@
                                (reset! old-cancelled true))
                              cancelled))
     new-task))
+
+
+(defn dereffable-job!
+  [id f sq]
+  ; cancel any old job
+  (swap! tasks update id (fn [old-cancelled]
+                           (when old-cancelled
+                             (reset! old-cancelled true))
+                           nil))
+  (if @tt/running
+    (let [p (promise)
+          a (atom nil)]
+      (schedule! id
+                 (fn []
+                   (let [r (f)]
+                     (reset! a r)
+                     (deliver p a)))
+                 sq)
+      (reify
+        IDeref
+        (deref [_]
+          @@p)
+        IPending
+        (isRealized [_]
+          (realized? p))))
+    (reify
+      IDeref
+      (deref [_]
+        (f))
+      IPending
+      (isRealized [_]
+        true))))
+
 
 (defn start! []
   (tt/start!))
