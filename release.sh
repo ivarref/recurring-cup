@@ -3,7 +3,7 @@
 set -ex
 
 clojure -Spom
-clojure -M:test
+clojure -X:test
 clojure -M:jar
 VERSION=$(clojure -X:release ivarref.pom-patch/set-patch-version! :patch :commit-count+1)
 
