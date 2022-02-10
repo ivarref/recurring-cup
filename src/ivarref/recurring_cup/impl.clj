@@ -78,6 +78,29 @@
     new-task))
 
 
+(defn scheduled-dereffable-job! [id f sq]
+  (let [p (promise)
+        a (atom nil)]
+    (schedule! id
+               (fn [] (let [r (f)]
+                        (reset! a r)
+                        (deliver p a)))
+               sq)
+    (reify
+      IDeref
+      (deref [_]
+        @@p)
+      IBlockingDeref
+      (deref [_ timeout-ms timeout-val]
+        (let [v (deref p timeout-ms timeout-val)]
+          (if (= v a)
+            @a
+            v)))
+      IPending
+      (isRealized [_]
+        (realized? p)))))
+
+
 (defn dereffable-job!
   [id f sq]
   ; cancel any old job
@@ -86,27 +109,7 @@
                              (reset! old-cancelled true))
                            nil))
   (if @tt/running
-    (let [p (promise)
-          a (atom nil)]
-      (schedule! id
-                 (fn []
-                   (let [r (f)]
-                     (reset! a r)
-                     (deliver p a)))
-                 sq)
-      (reify
-        IDeref
-        (deref [_]
-          @@p)
-        IBlockingDeref
-        (deref [_ timeout-ms timeout-val]
-          (let [v (deref p timeout-ms timeout-val)]
-            (if (= v a)
-              @a
-              v)))
-        IPending
-        (isRealized [_]
-          (realized? p))))
+    (scheduled-dereffable-job! id f sq)
     (reify
       IDeref
       (deref [_]
@@ -119,7 +122,11 @@
         true))))
 
 
-(defn start! []
+(defn start! [& {:keys [thread-count]
+                 :or   {thread-count 4}}]
+  (alter-var-root
+    (var tt/thread-count)
+    (constantly thread-count))
   (tt/start!))
 
 (defn stop! []
@@ -154,11 +161,12 @@
       (schedule! ::say-hi
                  (let [cnt (atom 0)]
                    (bound-fn []
-                     (println "hello" (swap! cnt inc))))
+                     (println "hello" (swap! cnt inc))
+                     #_(Thread/sleep 10000)))
                  (skip-past schedule))
-      (Thread/sleep 3000)
-      (schedule! ::say-hi
-                 (let [cnt (atom 0)]
-                   (bound-fn []
-                     (println "hi" (.getName (Thread/currentThread)) (swap! cnt inc))))
-                 (skip-past schedule)))))
+      #_(Thread/sleep 3000)
+      #_(schedule! ::say-hi
+                   (let [cnt (atom 0)]
+                     (bound-fn []
+                       (println "hi" (.getName (Thread/currentThread)) (swap! cnt inc))))
+                   (skip-past schedule)))))

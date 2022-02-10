@@ -120,5 +120,5 @@
 (defn start!
   "Starts the threadpool to execute tasks on the queue automatically. Repeated
   calls to start are noops."
-  []
-  (impl/start!))
+  [& args]
+  (apply impl/start! args))
