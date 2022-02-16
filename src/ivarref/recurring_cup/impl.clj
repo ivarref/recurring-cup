@@ -2,7 +2,7 @@
   (:require [tea-time.core :as tt]
             [clojure.string :as str]
             [clojure.tools.logging :as log])
-  (:import (java.time ZoneId Instant ZonedDateTime)
+  (:import (java.time ZoneId Instant ZonedDateTime Duration)
            (tea_time.core Task)
            (java.io Writer)
            (clojure.lang IDeref IPending IBlockingDeref)))
@@ -122,11 +122,16 @@
         true))))
 
 
-(defn start! [& {:keys [thread-count]
-                 :or   {thread-count 4}}]
+(defn start! [& {:keys [thread-count park-interval]
+                 :or   {thread-count  4
+                        park-interval (Duration/ofMillis 10)}}]
   (alter-var-root
     (var tt/thread-count)
     (constantly thread-count))
+  (let [park-interval-micros (* (.toMillis park-interval) 1000)]
+    (alter-var-root
+      (var tt/park-interval-micros)
+      (constantly park-interval-micros)))
   (tt/start!))
 
 (defn stop! []
