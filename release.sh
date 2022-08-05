@@ -12,7 +12,7 @@ git commit -m "Release $VERSION"
 git tag -a v$VERSION -m "Release v$VERSION"
 git push --follow-tags
 
-clojure -M:deploy
+clojure -T:deploy
 
 rm *.pom.asc || true
 
