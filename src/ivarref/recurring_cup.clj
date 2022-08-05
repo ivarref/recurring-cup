@@ -26,6 +26,20 @@
          (map number->zdt)
          (impl/skip-past))))
 
+(defn weekdays
+  "Returns a lazy sequence of daily ZonedDateTime.
+  Excludes Saturday and Sunday.
+
+  hour, minute, second and timezone is controlled by the arguments."
+  [{:keys [hour minute second timezone]
+    :or   {hour       0
+           minute     0
+           second     0
+           timezone   "UTC"}
+    :as opts}]
+  (->> (daily opts)
+       (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %)))))
+
 (defn every-n-minutes
   [n]
   (let [base (impl/now "UTC")
