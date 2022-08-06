@@ -126,8 +126,8 @@
 
 
 (defn stop!
-  "Stops the task threadpool. Waits for threads to exit. Repeated calls to stop
-  are noops."
+  "Stops the task threadpool. Waits for threads to exit.
+  Removes all future tasks. Repeated calls to stop are noops."
   []
   (impl/stop!))
 

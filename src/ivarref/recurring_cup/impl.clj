@@ -135,7 +135,8 @@
   (tt/start!))
 
 (defn stop! []
-  (tt/stop!))
+  (tt/stop!)
+  (tt/reset-tasks!))
 
 (comment
   (do
