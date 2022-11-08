@@ -135,12 +135,20 @@
     (impl/dereffable-job! (var->id v) f sq)))
 
 (defn deref-var
-  [v timeout-ms timeout-val]
-  (let [id (var->id v)
-        dereffable (get @impl/dereffable-jobs id)]
-    (if (nil? dereffable)
-      (throw (ex-info "Could not find job" {:id id}))
-      (deref dereffable timeout-ms timeout-val))))
+  ([v not-ready]
+   (let [id (var->id v)
+         dereffable (get @impl/dereffable-jobs id)]
+     (if (nil? dereffable)
+       (throw (ex-info "Could not find job" {:id id}))
+       (if (realized? dereffable)
+         (deref dereffable)
+         not-ready))))
+  ([v timeout-ms timeout-val]
+   (let [id (var->id v)
+         dereffable (get @impl/dereffable-jobs id)]
+     (if (nil? dereffable)
+       (throw (ex-info "Could not find job" {:id id}))
+       (deref dereffable timeout-ms timeout-val)))))
 
 (defn stop!
   "Stops the task threadpool. Waits for threads to exit.

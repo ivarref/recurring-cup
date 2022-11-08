@@ -100,6 +100,10 @@ Built on top of the excellent [Tea-Time](https://github.com/aphyr/tea-time).
 
 ## Change log
 
+#### 2022-11-08 v1.0.90
+
+`deref-var` should not require timeout-ms.
+
 #### 2022-11-08 v1.0.89
 
 Add `dereffable-var!` and `deref-var`.
