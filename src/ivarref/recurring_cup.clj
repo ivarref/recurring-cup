@@ -11,10 +11,10 @@
 
   hour, minute, second and timezone is controlled by the arguments."
   [{:keys [hour minute second timezone]
-    :or   {hour       0
-           minute     0
-           second     0
-           timezone   "UTC"}}]
+    :or   {hour     0
+           minute   0
+           second   0
+           timezone "UTC"}}]
   (let [base (impl/now timezone)
         number->zdt #(-> base
                          (.plusDays %)
@@ -32,26 +32,28 @@
 
   hour, minute, second and timezone is controlled by the arguments."
   [{:keys [hour minute second timezone]
-    :or   {hour       0
-           minute     0
-           second     0
-           timezone   "UTC"}
-    :as opts}]
+    :or   {hour     0
+           minute   0
+           second   0
+           timezone "UTC"}
+    :as   opts}]
   (->> (daily opts)
        (remove #(#{DayOfWeek/SATURDAY DayOfWeek/SUNDAY} (.getDayOfWeek %)))))
 
 (defn every-n-minutes
-  [n]
-  (let [base (impl/now "UTC")
-        number->zdt #(-> base
-                         (.withNano 0)
-                         (.withSecond 0)
-                         (.withMinute 0)
-                         (.withHour 0)
-                         (.plusMinutes (* n %)))]
-    (->> (impl/numbers)
-         (map number->zdt)
-         (impl/skip-past))))
+  ([n]
+   (every-n-minutes n 0))
+  ([n offset]
+   (let [base (impl/now "UTC")
+         number->zdt #(-> base
+                          (.withNano 0)
+                          (.withSecond 0)
+                          (.withMinute 0)
+                          (.withHour 0)
+                          (.plusMinutes (+ offset (* n %))))]
+     (->> (impl/numbers)
+          (map number->zdt)
+          (impl/skip-past)))))
 
 
 (defn every-n-seconds
@@ -124,6 +126,21 @@
   [id f sq]
   (impl/dereffable-job! id f sq))
 
+(defn- var->id [v]
+  (keyword (str (:ns (meta v))) (str (:name (meta v)))))
+
+(defn dereffable-var!
+  [v sq & args]
+  (let [f (fn [] (apply (deref v) args))]
+    (impl/dereffable-job! (var->id v) f sq)))
+
+(defn deref-var
+  [v timeout-ms timeout-val]
+  (let [id (var->id v)
+        dereffable (get @impl/dereffable-jobs id)]
+    (if (nil? dereffable)
+      (throw (ex-info "Could not find job" {:id id}))
+      (deref dereffable timeout-ms timeout-val))))
 
 (defn stop!
   "Stops the task threadpool. Waits for threads to exit.

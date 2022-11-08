@@ -98,6 +98,12 @@ Note: the default log level for errors in tea-time is `WARN`.
 
 Built on top of the excellent [Tea-Time](https://github.com/aphyr/tea-time).
 
+## Change log
+
+#### 2022-11-08 v1.0.89
+
+Add `dereffable-var!` and `deref-var`.
+
 ## License
 
 Copyright © 2019 Ivar Refsdal

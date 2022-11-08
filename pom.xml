@@ -4,7 +4,7 @@
   <packaging>jar</packaging>
   <groupId>ivarref</groupId>
   <artifactId>recurring-cup</artifactId>
-  <version>1.0.88</version>
+  <version>1.0.89</version>
   <name>recurring-cup</name>
   <dependencies>
     <dependency>
@@ -30,7 +30,7 @@
   <scm>
     <connection>scm:git:git://github.com/ivarref/recurring-cup.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/ivarref/recurring-cup.git</developerConnection>
-    <tag>v1.0.88</tag>
+    <tag>v1.0.89</tag>
     <url>https://github.com/ivarref/recurring-cup</url>
   </scm>
 </project>

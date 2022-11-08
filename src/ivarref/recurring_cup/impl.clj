@@ -52,6 +52,7 @@
   (.write writer ", ...]"))
 
 (defonce tasks (atom {}))
+(defonce dereffable-jobs (atom {}))
 
 (defn schedule!
   [id f sq]
@@ -108,19 +109,20 @@
                            (when old-cancelled
                              (reset! old-cancelled true))
                            nil))
-  (if @tt/running
-    (scheduled-dereffable-job! id f sq)
-    (reify
-      IDeref
-      (deref [_]
-        (f))
-      IBlockingDeref
-      (deref [_ _ _]
-        (f))
-      IPending
-      (isRealized [_]
-        true))))
-
+  (let [retval (if @tt/running
+                 (scheduled-dereffable-job! id f sq)
+                 (reify
+                   IDeref
+                   (deref [_]
+                     (f))
+                   IBlockingDeref
+                   (deref [_ _ _]
+                     (f))
+                   IPending
+                   (isRealized [_]
+                     true)))]
+    (swap! dereffable-jobs assoc id retval)
+    retval))
 
 (defn start! [& {:keys [thread-count park-interval]
                  :or   {thread-count  4
